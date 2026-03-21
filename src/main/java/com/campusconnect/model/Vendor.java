@@ -1,5 +1,6 @@
 package com.campusconnect.model;
 
+<<<<<<< HEAD
 import com.campusconnect.domain.AccountStatus;
 
 import jakarta.persistence.Column;
@@ -45,5 +46,8 @@ public class Vendor {
     private boolean isEmailVerified = false;
 
     private AccountStatus accountStatus = AccountStatus.PENDING_VERIFICATION;
+=======
+public class Vendor {
+>>>>>>> 7c6335e2c3eee85c71b14ed54fe5b7a2f5bec643
     
 }

@@ -1,5 +1,6 @@
 package com.campusconnect.model;
 
+<<<<<<< HEAD
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,4 +32,8 @@ public class Wishlist {
 
     @ManyToMany
     private Set<Event> events= new HashSet<>();
+=======
+public class Wishlist {
+    
+>>>>>>> 7c6335e2c3eee85c71b14ed54fe5b7a2f5bec643
 }

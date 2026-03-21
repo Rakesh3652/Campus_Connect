@@ -1,5 +1,6 @@
 package com.campusconnect.model;
 
+<<<<<<< HEAD
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
@@ -36,4 +37,8 @@ public class Transaction {
     private Vendor vendor;
 
     private LocalDateTime date = LocalDateTime.now();
+=======
+public class Transaction {
+    
+>>>>>>> 7c6335e2c3eee85c71b14ed54fe5b7a2f5bec643
 }

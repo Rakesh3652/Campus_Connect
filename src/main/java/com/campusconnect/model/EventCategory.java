@@ -1,5 +1,6 @@
 package com.campusconnect.model;
 
+<<<<<<< HEAD
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,5 +35,8 @@ public class EventCategory {
 
     @NotNull
     private int level;
+=======
+public class EventCategory {
+>>>>>>> 7c6335e2c3eee85c71b14ed54fe5b7a2f5bec643
     
 }
