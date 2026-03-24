@@ -1,14 +1,17 @@
 package com.campusconnect.model;
 
-<<<<<<< HEAD
 import com.campusconnect.domain.AccountStatus;
+import com.campusconnect.domain.USER_ROLE;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -42,12 +45,14 @@ public class Vendor {
     @Embedded
     private BankDetails bankDetails = new BankDetails();
 
-    private USER_ROLE role;
+  @Enumerated(EnumType.STRING)
+private USER_ROLE role;
+
     private boolean isEmailVerified = false;
 
     private AccountStatus accountStatus = AccountStatus.PENDING_VERIFICATION;
-=======
-public class Vendor {
->>>>>>> 7c6335e2c3eee85c71b14ed54fe5b7a2f5bec643
+
+    @OneToOne
+private User user;
     
 }

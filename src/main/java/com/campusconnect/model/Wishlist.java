@@ -1,9 +1,9 @@
 package com.campusconnect.model;
 
-<<<<<<< HEAD
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
 @Getter
 @Setter
 @AllArgsConstructor
@@ -32,8 +33,6 @@ public class Wishlist {
 
     @ManyToMany
     private Set<Event> events= new HashSet<>();
-=======
-public class Wishlist {
+
     
->>>>>>> 7c6335e2c3eee85c71b14ed54fe5b7a2f5bec643
 }

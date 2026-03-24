@@ -1,6 +1,5 @@
 package com.campusconnect.model;
 
-<<<<<<< HEAD
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,8 +33,4 @@ public class VendorReport {
     private Long netEarnings =0L;
     private int totalTransactions =0;
 
-=======
-public class VendorReport {
-    
->>>>>>> 7c6335e2c3eee85c71b14ed54fe5b7a2f5bec643
 }

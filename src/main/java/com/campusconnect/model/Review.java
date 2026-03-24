@@ -1,6 +1,5 @@
 package com.campusconnect.model;
 
-<<<<<<< HEAD
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -50,8 +49,5 @@ public class Review {
     @Column(nullable=false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-=======
-public class Review {
     
->>>>>>> 7c6335e2c3eee85c71b14ed54fe5b7a2f5bec643
 }

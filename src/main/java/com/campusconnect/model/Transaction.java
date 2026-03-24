@@ -1,6 +1,5 @@
 package com.campusconnect.model;
 
-<<<<<<< HEAD
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
@@ -22,23 +21,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Transaction {
-    
+
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String transactionId;
+    private String gateway;
+
+    private LocalDateTime timestamp = LocalDateTime.now();
+
     @ManyToOne
-    private User student;
-
-    @OneToMany
-    private Order order;
-
-    @ManyToOne
-    private Vendor vendor;
-
-    private LocalDateTime date = LocalDateTime.now();
-=======
-public class Transaction {
-    
->>>>>>> 7c6335e2c3eee85c71b14ed54fe5b7a2f5bec643
+    private Payment payment;
 }
