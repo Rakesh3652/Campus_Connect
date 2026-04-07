@@ -1,11 +1,12 @@
 package com.campusconnect.model;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,10 +23,14 @@ public class College {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-    private String city;
-    private String state;
+    private String collegeName;
+    private String location;
 
-    private String code;
-    private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "college")
+private List<Venue> venues;
+
+@OneToMany(mappedBy = "college")
+private List<Event> events;
+    
+
 }

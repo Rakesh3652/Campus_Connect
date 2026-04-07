@@ -1,14 +1,9 @@
 package com.campusconnect.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Getter
@@ -24,9 +19,25 @@ public class OrderItem {
     private int quantity;
     private Double price;
 
+    // ✅ Many items belong to one order
     @ManyToOne
     private Order order;
 
+    // ✅ Each item is one event
     @ManyToOne
     private Event event;
+
+    // ✅ Who booked it
+    @ManyToOne
+    private User user;
+
+    // ✅ Booking time (correct place 👍)
+    private LocalDateTime bookedAt = LocalDateTime.now();
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
+    // ✅ Link to ticket (optional but good)
+    @OneToOne
+    private Ticket ticket;
 }

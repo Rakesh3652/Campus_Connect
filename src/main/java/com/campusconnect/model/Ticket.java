@@ -1,5 +1,7 @@
 package com.campusconnect.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +22,6 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String EventName;
     private String ticketCode;
     private String qrCode;
 
@@ -32,4 +33,5 @@ public class Ticket {
 
     @ManyToOne
     private Order order;
-}
+
+    private LocalDateTime bookedAt = LocalDateTime.now();}

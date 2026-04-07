@@ -32,7 +32,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String firstName;
+    private String lastName;
 
     
     @NotBlank
@@ -41,7 +42,6 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private String phoneNumber;
-    private String fullName;
 
       @Enumerated(EnumType.STRING)
     private USER_ROLE role;

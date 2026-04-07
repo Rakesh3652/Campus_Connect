@@ -1,23 +1,12 @@
 package com.campusconnect.model;
 
-import com.campusconnect.domain.AccountStatus;
-import com.campusconnect.domain.USER_ROLE;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import com.campusconnect.domain.AccountStatus;
+
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
@@ -28,16 +17,17 @@ import lombok.Setter;
 public class Vendor {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String vendorName;
+    private String name;
     private String mobile;
 
     @NotBlank
-    @Column(unique=true)
+    @Column(unique = true)
     private String email;
-    private String password;
+
+    private String committee;
 
     @Embedded
     private BusinessDetail businessDetail = new BusinessDetail();
@@ -45,14 +35,13 @@ public class Vendor {
     @Embedded
     private BankDetails bankDetails = new BankDetails();
 
-  @Enumerated(EnumType.STRING)
-private USER_ROLE role;
-
     private boolean isEmailVerified = false;
 
     private AccountStatus accountStatus = AccountStatus.PENDING_VERIFICATION;
 
+    @OneToMany(mappedBy = "vendor")
+    private List<Event> events;
+
     @OneToOne
-private User user;
-    
+    private User user;
 }

@@ -1,0 +1,17 @@
+package com.campusconnect.repository;
+
+import com.campusconnect.model.College;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface CollegeRepository extends JpaRepository<College, Long> {
+
+    List<College> findByName(String name);
+
+    List<College> findByNameContainingIgnoreCase(String name);
+
+    List<College> findByLocation(String location);
+
+    // ✅ Search by location (both exact and partial match)
+    List<College> findByLocationContainingIgnoreCase(String location);
+}
