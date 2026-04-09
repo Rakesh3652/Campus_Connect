@@ -21,7 +21,7 @@ public class Vendor {
     private Long id;
 
     private String name;
-    private String mobile;
+    private String phoneNumber;
 
     @NotBlank
     @Column(unique = true)

@@ -11,7 +11,7 @@ import com.campusconnect.domain.AccountStatus;
 
 public interface VendorRepository extends JpaRepository<Vendor, Long> {
 
-    List<Vendor> findByEmail(String email);
-    Optional<Vendor> findByMobile(String mobile);
+    List<Vendor>findByVendorId(Long id);
+    Optional<Vendor> findByEmail(String email);
     List<Vendor> findByAccountStatus(AccountStatus accountStatus);
 }

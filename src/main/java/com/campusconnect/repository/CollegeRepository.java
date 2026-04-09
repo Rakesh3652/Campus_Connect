@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CollegeRepository extends JpaRepository<College, Long> {
 
-    List<College> findByName(String name);
+    List<College> findByCollegeName(String collegeName);
 
     List<College> findByNameContainingIgnoreCase(String name);
 

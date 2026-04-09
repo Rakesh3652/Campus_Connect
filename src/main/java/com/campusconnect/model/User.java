@@ -44,7 +44,7 @@ public class User {
     private String phoneNumber;
 
       @Enumerated(EnumType.STRING)
-    private USER_ROLE role;
+    private USER_ROLE role = USER_ROLE.ROLE_STUDENT;
 
     private LocalDateTime createdAt;
 
