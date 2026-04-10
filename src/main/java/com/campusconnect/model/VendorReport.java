@@ -18,19 +18,16 @@ import lombok.Setter;
 public class VendorReport {
     
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
     private Vendor vendor;
 
-
-    // will there be ticket entity here? 
-    private Long totalEarnings =0L;
-    private Long totalTicketSale =0L;
-    private Long totalTax =0L;
+    private Long totalEarnings = 0L;
+    private Long totalTicketSale = 0L;
+    private Long totalTax = 0L;
     private Long capacity;
-    private Long netEarnings =0L;
-    private int totalTransactions =0;
-
+    private Long netEarnings = 0L;
+    private Integer totalTransactions = 0;
 }

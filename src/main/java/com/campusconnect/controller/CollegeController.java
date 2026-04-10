@@ -17,47 +17,76 @@ public class CollegeController {
 
     private final CollegeRepository collegeRepository;
 
-    // ✅ CREATE
     @PostMapping
-    public ResponseEntity<College> createCollege(@RequestBody College college) {
-        return ResponseEntity.ok(collegeRepository.save(college));
+    public ResponseEntity<College> createCollege(@RequestBody College req) {
+        College college = new College();
+        college.setCollegeName(req.getCollegeName());
+        college.setLocation(req.getLocation());
+     
+        College savedCollege = collegeRepository.save(college);
+        return ResponseEntity.ok(savedCollege);
     }
 
-    // ✅ GET ALL
     @GetMapping
     public ResponseEntity<List<College>> getAllColleges() {
-        return ResponseEntity.ok(collegeRepository.findAll());
+        List<College> colleges = collegeRepository.findAll();
+        return ResponseEntity.ok(colleges);
     }
 
-    // ✅ GET BY ID
+
     @GetMapping("/{id}")
-    public ResponseEntity<College> getById(@PathVariable Long id) {
+    public ResponseEntity<College> getCollegeById(@PathVariable Long id) {
         College college = collegeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("College not found with id: " + id));
         return ResponseEntity.ok(college);
     }
 
-    // ✅ FULL UPDATE (PUT)
-    @PutMapping("/{id}")
-    public ResponseEntity<College> updateCollege(@PathVariable Long id,
-                                                 @RequestBody College details) {
-
-        College college = collegeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("College not found"));
-
-        college.setCollegeName(details.getCollegeName());
-        college.setLocation(details.getLocation());
-
-        return ResponseEntity.ok(collegeRepository.save(college));
+    @GetMapping("/name/{collegeName}")
+    public ResponseEntity<List<College>> getCollegeByName(@PathVariable String collegeName){
+        List<College> colleges = collegeRepository.findByCollegeName(collegeName);
+        return ResponseEntity.ok(colleges);
     }
 
-    // ✅ PARTIAL UPDATE (PATCH)
+    @GetMapping("/search/name/{collegeName}")
+    public ResponseEntity<List<College>> searchCollegeByName(@PathVariable String collegeName){
+        List<College> colleges = collegeRepository.findByNameContainingIgnoreCase(collegeName);
+        return ResponseEntity.ok(colleges);
+    }
+
+    @GetMapping("/location/{location}")
+    public ResponseEntity<List<College>> getCollegeByLocation(@PathVariable String location){
+        List<College> colleges = collegeRepository.findByLocation(location);
+        return ResponseEntity.ok(colleges);
+    }
+
+    @GetMapping("/search/location/{location}")
+    public ResponseEntity<List<College>> searchCollegeByLocation(@PathVariable String location){
+        List<College> colleges = collegeRepository.findByLocationContainingIgnoreCase(location);
+        return ResponseEntity.ok(colleges);
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<College> updateCollege(@PathVariable Long id,
+                                                 @RequestBody College updateCollege) {
+
+        College college = collegeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("College not found with id " +id));
+
+        college.setCollegeName(updateCollege.getCollegeName());
+        college.setLocation(updateCollege.getLocation());
+
+        College savedCollege = collegeRepository.save(college);
+        return ResponseEntity.ok(savedCollege);
+    }
+
+
     @PatchMapping("/{id}")
     public ResponseEntity<College> updatePartial(@PathVariable Long id,
                                                 @RequestBody College details) {
 
         College college = collegeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("College not found"));
+                .orElseThrow(() -> new RuntimeException("College not found with id " + id));
 
         if (details.getCollegeName() != null)
             college.setCollegeName(details.getCollegeName());
@@ -65,36 +94,18 @@ public class CollegeController {
         if (details.getLocation() != null)
             college.setLocation(details.getLocation());
 
-        return ResponseEntity.ok(collegeRepository.save(college));
+        
+         College updatedCollege = collegeRepository.save(college);
+         return ResponseEntity.ok(updatedCollege);
     }
 
-    // ✅ DELETE
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        collegeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("College not found"));
+    public ResponseEntity<String> deleteCollege(@PathVariable Long id) {
+        College college = collegeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("College not found with id " + id));
 
-        collegeRepository.deleteById(id);
+        collegeRepository.delete(college);
         return ResponseEntity.ok("College deleted successfully");
-    }
-
-    // 🔥 EXTRA GET APIs (FROM REPO)
-
-    // Search by name
-    @GetMapping("/search")
-    public ResponseEntity<List<College>> searchByName(@RequestParam String name) {
-        return ResponseEntity.ok(collegeRepository.findByNameContainingIgnoreCase(name));
-    }
-
-    // Exact location
-    @GetMapping("/location")
-    public ResponseEntity<List<College>> getByLocation(@RequestParam String location) {
-        return ResponseEntity.ok(collegeRepository.findByLocation(location));
-    }
-
-    // Partial location search
-    @GetMapping("/location/search")
-    public ResponseEntity<List<College>> searchByLocation(@RequestParam String location) {
-        return ResponseEntity.ok(collegeRepository.findByLocationContainingIgnoreCase(location));
     }
 }

@@ -13,88 +13,107 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.campusconnect.model.Event;
+
 import lombok.RequiredArgsConstructor;
 
 import com.campusconnect.model.EventMedia;
 import com.campusconnect.repository.EventMediaRepository;
+import com.campusconnect.repository.EventRepository;
 
 @RestController
-@RequestMapping("/media")
+@RequestMapping("/event-media")
 @RequiredArgsConstructor
 public class EventMediaController {
 
-    private final EventMediaRepository repository;
+    private final EventMediaRepository eventMediaRepository;
+    private final EventRepository eventRepository;
 
-    // CREATE
+    
     @PostMapping
-    public ResponseEntity<EventMedia> create(@RequestBody EventMedia media) {
-        return ResponseEntity.ok(repository.save(media));
+    public ResponseEntity<EventMedia> createEventMedia(@RequestBody EventMedia req) {
+
+        Event event = eventRepository.findById(req.getEvent().getId())
+        .orElseThrow(()-> new RuntimeException ("Event not found "));
+
+        EventMedia media = new EventMedia();
+        media.setMediaUrl(req.getMediaUrl());
+        media.setType(req.getType());
+        media.setEvent(event);
+
+        EventMedia savedMedia = eventMediaRepository.save(media);
+        return ResponseEntity.ok(savedMedia);
     }
 
-    // GET ALL
+
     @GetMapping
-    public ResponseEntity<List<EventMedia>> getAll() {
-        return ResponseEntity.ok(repository.findAll());
+    public ResponseEntity<List<EventMedia>> getAllEventMedia() {
+        List<EventMedia> eventMedia = eventMediaRepository.findAll();
+        return ResponseEntity.ok(eventMedia);
     }
 
-    // GET BY ID
+
     @GetMapping("/{id}")
-    public ResponseEntity<EventMedia> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                repository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Media not found"))
-        );
+    public ResponseEntity<EventMedia> getEventMediaById(@PathVariable Long id) {
+        EventMedia eventMedia = eventMediaRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Event media not found with id " + id));
+        return ResponseEntity.ok(eventMedia);
     }
 
-    // UPDATE (PUT)
-    @PutMapping("/{id}")
-    public ResponseEntity<EventMedia> update(@PathVariable Long id,
-                                             @RequestBody EventMedia details) {
-
-        EventMedia media = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Media not found"));
-
-        media.setEventName(details.getEventName());
-        media.setMediaUrl(details.getMediaUrl());
-        media.setType(details.getType());
-        media.setEvent(details.getEvent());
-
-        return ResponseEntity.ok(repository.save(media));
-    }
-
-    // PATCH
-    @PatchMapping("/{id}")
-    public ResponseEntity<EventMedia> patch(@PathVariable Long id,
-                                           @RequestBody EventMedia details) {
-
-        EventMedia media = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Media not found"));
-
-        if (details.getMediaUrl() != null)
-            media.setMediaUrl(details.getMediaUrl());
-
-        if (details.getType() != null)
-            media.setType(details.getType());
-
-        return ResponseEntity.ok(repository.save(media));
-    }
-
-    // DELETE
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        repository.deleteById(id);
-        return ResponseEntity.ok("Deleted");
-    }
-
-    // 🔥 EXTRA GET
 
     @GetMapping("/event/{eventId}")
-    public ResponseEntity<List<EventMedia>> getByEvent(@PathVariable Long eventId) {
-        return ResponseEntity.ok(repository.findByEventId(eventId));
+    public ResponseEntity<List<EventMedia>> getByEventId(@PathVariable Long eventId) {
+       List<EventMedia> eventMedia = eventMediaRepository.findByEventId(eventId);
+        return ResponseEntity.ok(eventMedia);
     }
 
-    @GetMapping("/name/{name}")
-    public ResponseEntity<List<EventMedia>> getByName(@PathVariable String name) {
-        return ResponseEntity.ok(repository.findByEventName(name));
+        @PutMapping("/{id}")
+    public ResponseEntity<EventMedia> updateEventMedia(@PathVariable Long id, @RequestBody EventMedia req) {
+        EventMedia eventMedia = eventMediaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event media not found with id " + id));
+
+        Event event = eventRepository.findById(req.getEvent().getId())
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        eventMedia.setMediaUrl(req.getMediaUrl());
+        eventMedia.setType(req.getType());
+        eventMedia.setEvent(event);
+
+        EventMedia updatedEventMedia = eventMediaRepository.save(eventMedia);
+        return ResponseEntity.ok(updatedEventMedia);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<EventMedia> patchEventMedia(@PathVariable Long id, @RequestBody EventMedia req) {
+        EventMedia eventMedia = eventMediaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event media not found with id " + id));
+
+
+        if (req.getMediaUrl() != null) {
+            eventMedia.setMediaUrl(req.getMediaUrl());
+        }
+
+        if (req.getType() != null) {
+            eventMedia.setType(req.getType());
+        }
+
+        if (req.getEvent() != null && req.getEvent().getId() != null) {
+            Event event = eventRepository.findById(req.getEvent().getId())
+                    .orElseThrow(() -> new RuntimeException("Event not found"));
+            eventMedia.setEvent(event);
+        }
+
+        EventMedia updatedEventMedia = eventMediaRepository.save(eventMedia);
+        return ResponseEntity.ok(updatedEventMedia);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteEventMedia(@PathVariable Long id) {
+        EventMedia eventMedia = eventMediaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event media not found with id " + id));
+
+        eventMediaRepository.delete(eventMedia);
+        return ResponseEntity.ok("Event media deleted successfully");
+    }
+
 }

@@ -8,7 +8,7 @@ public interface CollegeRepository extends JpaRepository<College, Long> {
 
     List<College> findByCollegeName(String collegeName);
 
-    List<College> findByNameContainingIgnoreCase(String name);
+    List<College> findByNameContainingIgnoreCase(String collegeName);
 
     List<College> findByLocation(String location);
 

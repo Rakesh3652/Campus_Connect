@@ -6,7 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.campusconnect.model.Event;
+import com.campusconnect.model.EventCategory;
+import com.campusconnect.model.Vendor;
+import com.campusconnect.model.Venue;
+import com.campusconnect.repository.EventCategoryRepository;
 import com.campusconnect.repository.EventRepository;
+import com.campusconnect.repository.VendorRepository;
+import com.campusconnect.repository.VenueRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,14 +22,46 @@ import lombok.RequiredArgsConstructor;
 public class EventController {
 
     private final EventRepository eventRepository;
+    private final VendorRepository vendorRepository;
+    private final VenueRepository venueRepository;
+    private final EventCategoryRepository eventCategoryRepository;
 
-    // ✅ GET ALL EVENTS
+    @PostMapping
+    public ResponseEntity<Event> createEvent(@RequestBody Event req ) {
+
+        Vendor vendor = vendorRepository.findById(req.getVendor().getId())
+        .orElseThrow(() -> new RuntimeException("Vendor not found"));
+
+
+        EventCategory category = eventCategoryRepository.findById(req.getCategory().getId())
+        .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        Venue venue = venueRepository.findById(req.getVenue().getId())
+        .orElseThrow(() -> new RuntimeException("Venue not found"));
+        
+        Event event = new Event();
+        event.setTitle(req.getTitle());
+        event.setDescription(req.getDescription());
+        event.setPrice(req.getPrice());
+        event.setCapacity(req.getCapacity());
+        event.setBookedCount(req.getBookedCount());
+        event.setIsActive(true);
+        event.setStartTime(req.getStartTime());
+        event.setEndTime(req.getEndTime());
+        event.setVenue(venue);
+        event.setVendor(vendor);
+        event.setCategory(category);
+
+        Event savedEvent = eventRepository.save(event);
+        return ResponseEntity.ok(savedEvent);
+    }
+
     @GetMapping
     public ResponseEntity<List<Event>> getAllEvents() {
         return ResponseEntity.ok(eventRepository.findAll());
     }
 
-    // ✅ GET EVENT BY ID
+
     @GetMapping("/{id}")
     public ResponseEntity<Event> getEventById(@PathVariable Long id) {
         Event event = eventRepository.findById(id)
@@ -32,17 +70,24 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
-    // ✅ CREATE EVENT
-    @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
 
-        // default values
-        event.setBookedCount(0);
-        event.setIsActive(true);
+    @GetMapping("/active")
+    public ResponseEntity<List<Event>> getActiveEvents() {
+        return ResponseEntity.ok(eventRepository.findByIsActiveTrue());
+    }
 
-        Event savedEvent = eventRepository.save(event);
+    
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<Event>> getEventsByCategory(@PathVariable Long categoryId) {
+        List<Event> event = eventRepository.findByCategoryId(categoryId);
+        return ResponseEntity.ok(event);
+    }
 
-        return ResponseEntity.ok(savedEvent);
+
+    @GetMapping("/vendor/{vendorId}")
+    public ResponseEntity<List<Event>> getEventsByVendor(@PathVariable Long vendorId) {
+        List<Event> event = eventRepository.findByVendorId(vendorId);
+        return ResponseEntity.ok(event);
     }
 
     
@@ -52,6 +97,14 @@ public class EventController {
 
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+
+        Vendor vendor = vendorRepository.findById(eventDetails.getVendor().getId())
+        .orElseThrow(() -> new RuntimeException("Vendor not found"));
+
+        EventCategory category = eventCategoryRepository.findById(eventDetails.getCategory().getId()). orElseThrow(() -> new RuntimeException("Category not found"));
+
+        Venue venue = venueRepository.findById(eventDetails.getVenue().getId())
+        .orElseThrow(() -> new RuntimeException("Venue not found"));
 
         event.setTitle(eventDetails.getTitle());
         event.setDescription(eventDetails.getDescription());
@@ -65,12 +118,13 @@ public class EventController {
         event.setCategory(eventDetails.getCategory());
         event.setVenue(eventDetails.getVenue());
 
-        return ResponseEntity.ok(eventRepository.save(event));
+        Event updatedEvent = eventRepository.save(event);
+        return ResponseEntity.ok(updatedEvent);
     }
 
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Event> updateEventPartial(@PathVariable Long id, @RequestBody Event eventDetails) {
+    public ResponseEntity<Event> patchEvent(@PathVariable Long id, @RequestBody Event eventDetails) {
 
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
@@ -99,43 +153,36 @@ public class EventController {
         if (eventDetails.getEndTime() != null)
             event.setEndTime(eventDetails.getEndTime());
 
-        if (eventDetails.getVendor() != null)
-            event.setVendor(eventDetails.getVendor());
+        if (eventDetails.getVendor() != null  && eventDetails.getVendor().getId() != null){
+            Vendor vendor = vendorRepository.findById(eventDetails.getVendor().getId())
+            .orElseThrow(()  -> new RuntimeException ("Vendor not found"));
+            event.setVendor(vendor);
+        }
+        
+        if (eventDetails.getCategory()!= null  && eventDetails.getCategory().getId() != null){
+            EventCategory category = eventCategoryRepository.findById(eventDetails.getCategory().getId())
+            .orElseThrow(()  -> new RuntimeException ("Category not found"));
+            event.setCategory(category);
+        }
 
-        if (eventDetails.getCategory() != null)
-            event.setCategory(eventDetails.getCategory());
+        if (eventDetails.getVenue() != null && eventDetails.getVenue().getId() != null){
+            Venue venue = venueRepository.findById(eventDetails.getVenue().getId())
+            .orElseThrow(()  -> new RuntimeException ("Venue not found"));
+            event.setVenue(venue);
+        }
 
-        if (eventDetails.getVenue() != null)
-            event.setVenue(eventDetails.getVenue());
-
-        return ResponseEntity.ok(eventRepository.save(event));
+        Event updatedEvent = eventRepository.save(event);
+        return ResponseEntity.ok(updatedEvent);
     }
 
-    // ✅ DELETE EVENT
+
    @DeleteMapping("/{id}")
-public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<String> deleteEvent(@PathVariable Long id) {
  
-    eventRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+    Event event = eventRepository.findById(id)
+    .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
     eventRepository.deleteById(id);
     return ResponseEntity.ok("Event deleted successfully");
 }
 
-
-    // ✅ GET ACTIVE EVENTS
-    @GetMapping("/active")
-    public ResponseEntity<List<Event>> getActiveEvents() {
-        return ResponseEntity.ok(eventRepository.findByIsActiveTrue());
-    }
-
-    // ✅ GET EVENTS BY CATEGORY
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<Event>> getEventsByCategory(@PathVariable Long categoryId) {
-        return ResponseEntity.ok(eventRepository.findByCategoryId(categoryId));
-    }
-
-    // ✅ GET EVENTS BY VENDOR
-    @GetMapping("/vendor/{vendorId}")
-    public ResponseEntity<List<Event>> getEventsByVendor(@PathVariable Long vendorId) {
-        return ResponseEntity.ok(eventRepository.findByVendorId(vendorId));
-    }
 }

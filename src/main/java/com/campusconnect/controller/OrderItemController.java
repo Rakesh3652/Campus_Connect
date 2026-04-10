@@ -1,110 +1,187 @@
 package com.campusconnect.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import com.campusconnect.model.Event;
+import com.campusconnect.model.Order;
+import com.campusconnect.model.OrderItem;
+import com.campusconnect.model.Ticket;
+import com.campusconnect.model.User;
+import com.campusconnect.repository.EventRepository;
+import com.campusconnect.repository.OrderItemRepository;
+import com.campusconnect.repository.OrderRepository;
+import com.campusconnect.repository.TicketRepository;
+import com.campusconnect.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
-
-import com.campusconnect.model.OrderItem;
-import com.campusconnect.model.OrderStatus;
-import com.campusconnect.repository.OrderItemRepository;
 
 @RestController
 @RequestMapping("/order-items")
 @RequiredArgsConstructor
 public class OrderItemController {
 
-    private final OrderItemRepository repository;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
+    private final TicketRepository ticketRepository;
 
-    // CREATE
     @PostMapping
-    public ResponseEntity<OrderItem> create(@RequestBody OrderItem item) {
-        return ResponseEntity.ok(repository.save(item));
+    public ResponseEntity<OrderItem> createOrderItem(@RequestBody OrderItem req) {
+
+        Order order = orderRepository.findById(req.getOrder().getId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        User user = userRepository.findById(req.getUser().getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Event event = eventRepository.findById(req.getEvent().getId())
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        Ticket ticket = null;
+        if (req.getTicket() != null && req.getTicket().getId() != null) {
+            ticket = ticketRepository.findById(req.getTicket().getId())
+                    .orElseThrow(() -> new RuntimeException("Ticket not found"));
+        }
+
+        OrderItem orderItem = new OrderItem();
+        orderItem.setQuantity(req.getQuantity());
+        orderItem.setPrice(req.getPrice());
+        orderItem.setBookedAt(LocalDateTime.now());
+        orderItem.setStatus(req.getStatus());
+        orderItem.setOrder(order);
+        orderItem.setUser(user);
+        orderItem.setEvent(event);
+        orderItem.setTicket(ticket);
+
+        OrderItem savedOrderItem = orderItemRepository.save(orderItem);
+        return ResponseEntity.ok(savedOrderItem);
     }
 
-    // GET ALL
     @GetMapping
-    public ResponseEntity<List<OrderItem>> getAll() {
-        return ResponseEntity.ok(repository.findAll());
+    public ResponseEntity<List<OrderItem>> getAllOrderItems() {
+        return ResponseEntity.ok(orderItemRepository.findAll());
     }
 
-    // GET BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<OrderItem> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                repository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Not found"))
-        );
+    public ResponseEntity<OrderItem> getOrderItemById(@PathVariable Long id) {
+        OrderItem orderItem = orderItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("OrderItem not found with id " + id));
+
+        return ResponseEntity.ok(orderItem);
     }
-
-    // PUT
-    @PutMapping("/{id}")
-    public ResponseEntity<OrderItem> update(@PathVariable Long id,
-                                            @RequestBody OrderItem details) {
-
-        OrderItem item = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
-
-        item.setQuantity(details.getQuantity());
-        item.setPrice(details.getPrice());
-        item.setStatus(details.getStatus());
-
-        return ResponseEntity.ok(repository.save(item));
-    }
-
-    // PATCH
-    @PatchMapping("/{id}")
-    public ResponseEntity<OrderItem> patch(@PathVariable Long id,
-                                           @RequestBody OrderItem details) {
-
-        OrderItem item = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
-
-        if (details.getQuantity() != 0)
-            item.setQuantity(details.getQuantity());
-
-        if (details.getStatus() != null)
-            item.setStatus(details.getStatus());
-
-        return ResponseEntity.ok(repository.save(item));
-    }
-
-    // DELETE
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        repository.deleteById(id);
-        return ResponseEntity.ok("Deleted");
-    }
-
-    // 🔥 EXTRA GETs
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<List<OrderItem>> getByOrder(@PathVariable Long orderId) {
-        return ResponseEntity.ok(repository.findByOrderId(orderId));
+    public ResponseEntity<List<OrderItem>> getOrderItemsByOrderId(@PathVariable Long orderId) {
+        return ResponseEntity.ok(orderItemRepository.findByOrderId(orderId));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<OrderItem>> getByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(repository.findByUserId(userId));
+    public ResponseEntity<List<OrderItem>> getOrderItemsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(orderItemRepository.findByUserId(userId));
     }
 
     @GetMapping("/event/{eventId}")
-    public ResponseEntity<List<OrderItem>> getByEvent(@PathVariable Long eventId) {
-        return ResponseEntity.ok(repository.findByEventId(eventId));
+    public ResponseEntity<List<OrderItem>> getOrderItemsByEventId(@PathVariable Long eventId) {
+        return ResponseEntity.ok(orderItemRepository.findByEventId(eventId));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<OrderItem>> getByStatus(@PathVariable OrderStatus status) {
-        return ResponseEntity.ok(repository.findByStatus(status));
+    public ResponseEntity<List<OrderItem>> getOrderItemsByStatus(@PathVariable String status) {
+        return ResponseEntity.ok(
+                orderItemRepository.findByStatus(
+                        com.campusconnect.model.OrderStatus.valueOf(status.toUpperCase())
+                )
+        );
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderItem> updateOrderItem(@PathVariable Long id, @RequestBody OrderItem req) {
+        OrderItem orderItem = orderItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("OrderItem not found with id " + id));
+
+        Order order = orderRepository.findById(req.getOrder().getId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        User user = userRepository.findById(req.getUser().getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Event event = eventRepository.findById(req.getEvent().getId())
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        Ticket ticket = null;
+        if (req.getTicket() != null && req.getTicket().getId() != null) {
+            ticket = ticketRepository.findById(req.getTicket().getId())
+                    .orElseThrow(() -> new RuntimeException("Ticket not found"));
+        }
+
+        orderItem.setQuantity(req.getQuantity());
+        orderItem.setPrice(req.getPrice());
+        orderItem.setStatus(req.getStatus());
+        orderItem.setOrder(order);
+        orderItem.setUser(user);
+        orderItem.setEvent(event);
+        orderItem.setTicket(ticket);
+
+        OrderItem updatedOrderItem = orderItemRepository.save(orderItem);
+        return ResponseEntity.ok(updatedOrderItem);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<OrderItem> patchOrderItem(@PathVariable Long id, @RequestBody OrderItem req) {
+        OrderItem orderItem = orderItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("OrderItem not found with id " + id));
+
+        if (req.getQuantity() != 0) {
+            orderItem.setQuantity(req.getQuantity());
+        }
+
+        if (req.getPrice() != null) {
+            orderItem.setPrice(req.getPrice());
+        }
+
+        if (req.getStatus() != null) {
+            orderItem.setStatus(req.getStatus());
+        }
+
+        if (req.getOrder() != null && req.getOrder().getId() != null) {
+            Order order = orderRepository.findById(req.getOrder().getId())
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
+            orderItem.setOrder(order);
+        }
+
+        if (req.getUser() != null && req.getUser().getId() != null) {
+            User user = userRepository.findById(req.getUser().getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            orderItem.setUser(user);
+        }
+
+        if (req.getEvent() != null && req.getEvent().getId() != null) {
+            Event event = eventRepository.findById(req.getEvent().getId())
+                    .orElseThrow(() -> new RuntimeException("Event not found"));
+            orderItem.setEvent(event);
+        }
+
+        if (req.getTicket() != null && req.getTicket().getId() != null) {
+            Ticket ticket = ticketRepository.findById(req.getTicket().getId())
+                    .orElseThrow(() -> new RuntimeException("Ticket not found"));
+            orderItem.setTicket(ticket);
+        }
+
+        OrderItem updatedOrderItem = orderItemRepository.save(orderItem);
+        return ResponseEntity.ok(updatedOrderItem);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteOrderItem(@PathVariable Long id) {
+        OrderItem orderItem = orderItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("OrderItem not found with id " + id));
+
+        orderItemRepository.delete(orderItem);
+        return ResponseEntity.ok("OrderItem deleted successfully");
     }
 }

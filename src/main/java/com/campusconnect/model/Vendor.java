@@ -13,7 +13,6 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 public class Vendor {
 
     @Id
@@ -37,6 +36,7 @@ public class Vendor {
 
     private boolean isEmailVerified = false;
 
+    @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus = AccountStatus.PENDING_VERIFICATION;
 
     @OneToMany(mappedBy = "vendor")

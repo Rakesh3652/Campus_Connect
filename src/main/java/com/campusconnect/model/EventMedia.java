@@ -21,7 +21,6 @@ public class EventMedia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-   private String eventName;
     private String mediaUrl;
 
     private String type; 

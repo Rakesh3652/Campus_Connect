@@ -23,7 +23,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+
 public class Review {
 
     @Id
@@ -34,7 +34,7 @@ public class Review {
     private String reviewText;
 
      @Column(nullable=false)
-    private double rating;
+    private Double rating;
 
     @ElementCollection
     private List<String> eventImages;

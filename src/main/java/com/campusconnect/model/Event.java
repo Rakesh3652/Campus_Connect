@@ -44,4 +44,7 @@ public class Event {
 
     @ManyToOne
     private Venue venue;
+
+    @ManyToOne
+    private College college;
 }

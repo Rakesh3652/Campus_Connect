@@ -16,12 +16,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 public class Venue {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private long id;
+    private Long id;
     private String name;
     private String locality;
     private String address;
@@ -31,5 +30,5 @@ public class Venue {
     private String mobile;
 
     @ManyToOne
-private College college;
+    private College college;
 }

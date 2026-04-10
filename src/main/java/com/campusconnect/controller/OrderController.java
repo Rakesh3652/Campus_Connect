@@ -1,83 +1,126 @@
 package com.campusconnect.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import com.campusconnect.model.Order;
+import com.campusconnect.model.OrderItem;
+import com.campusconnect.model.User;
 import com.campusconnect.repository.OrderRepository;
+import com.campusconnect.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderRepository repository;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
 
     @PostMapping
-    public ResponseEntity<Order> create(@RequestBody Order order) {
-        return ResponseEntity.ok(repository.save(order));
+    public ResponseEntity<Order> createOrder(@RequestBody Order req) {
+
+        if (req.getUser() == null || req.getUser().getId() == null) {
+            throw new RuntimeException("User id is required");
+        }
+
+        User user = userRepository.findById(req.getUser().getId())
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Order order = new Order();
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setItems(req.getItems());
+
+        if (order.getItems() != null) {
+            for (OrderItem item : order.getItems()) {
+                item.setOrder(order);
+            }
+        }
+
+        Order savedOrder = orderRepository.save(order);
+        return ResponseEntity.ok(savedOrder);
     }
 
     @GetMapping
-    public ResponseEntity<List<Order>> getAll() {
-        return ResponseEntity.ok(repository.findAll());
+    public ResponseEntity<List<Order>> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-            repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Not found"))
-        );
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+        Order order = orderRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
+
+        return ResponseEntity.ok(order);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable Long userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return ResponseEntity.ok(orders);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Order> update(@PathVariable Long id,
-                                        @RequestBody Order details) {
+    public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order req) {
+        Order order = orderRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
 
-        Order order = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+        if (req.getUser() != null && req.getUser().getId() != null) {
+            User user = userRepository.findById(req.getUser().getId())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+            order.setUser(user);
+        }
 
-        order.setUser(details.getUser());
-        order.setItems(details.getItems());
+        if (req.getItems() != null) {
+            order.getItems().clear();
+            order.getItems().addAll(req.getItems());
 
-        return ResponseEntity.ok(repository.save(order));
+            for (OrderItem item : order.getItems()) {
+                item.setOrder(order);
+            }
+        }
+
+        Order updatedOrder = orderRepository.save(order);
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Order> patch(@PathVariable Long id,
-                                      @RequestBody Order details) {
+    public ResponseEntity<Order> patchOrder(@PathVariable Long id, @RequestBody Order req) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
 
-        Order order = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+        if (req.getUser() != null && req.getUser().getId() != null) {
+            User user = userRepository.findById(req.getUser().getId())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+            order.setUser(user);
+        }
 
-        if (details.getItems() != null)
-            order.setItems(details.getItems());
+        if (req.getItems() != null) {
+            order.getItems().clear();
+            order.getItems().addAll(req.getItems());
 
-        return ResponseEntity.ok(repository.save(order));
+            for (OrderItem item : order.getItems()) {
+                item.setOrder(order);
+            }
+        }
+
+        Order updatedOrder = orderRepository.save(order);
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        repository.deleteById(id);
-        return ResponseEntity.ok("Deleted");
-    }
+    public ResponseEntity<String> deleteOrder(@PathVariable Long id) {
+        Order order = orderRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
 
-    // 🔥 EXTRA
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Order>> getByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(repository.findByUserId(userId));
+        orderRepository.delete(order);
+        return ResponseEntity.ok("Order deleted successfully");
     }
 }
