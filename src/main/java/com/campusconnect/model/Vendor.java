@@ -34,7 +34,8 @@ public class Vendor {
     @Embedded
     private BankDetails bankDetails = new BankDetails();
 
-    private boolean isEmailVerified = false;
+    @Column(name = "is_email_verified")
+    private Boolean isEmailVerified = false;
 
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus = AccountStatus.PENDING_VERIFICATION;

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.campusconnect.exception.BadRequestException;
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.Event;
 import com.campusconnect.model.User;
 
@@ -35,11 +37,15 @@ public class WishlistController {
     public ResponseEntity<Wishlist> createWishlist(@RequestBody Wishlist request) {
 
         if (request.getUser() == null || request.getUser().getId() == null) {
-        throw new RuntimeException("User id is required");
+        throw new BadRequestException("User id is required");
           }
 
         User user = userRepository.findById(request.getUser().getId()).
-        orElseThrow(()-> new RuntimeException("User not found"));
+        orElseThrow(()-> new ResourceNotFoundException("User not found"));
+
+        if(wishlistRepository.findByUserId(user.getId()).isPresent()){
+            throw new BadRequestException("Wishlist already exists for this user");
+        }
 
         Wishlist wishlist = new Wishlist();
         wishlist.setUser(user);
@@ -52,7 +58,7 @@ public class WishlistController {
     @GetMapping("/{id}")
     public ResponseEntity<Wishlist> getWishlistById(@PathVariable Long id) {
             Wishlist wishlist = wishlistRepository.findById(id).
-            orElseThrow(()-> new RuntimeException("Wishlist not found with id "+ id));
+            orElseThrow(()-> new ResourceNotFoundException("Wishlist not found with id "+ id));
 
             return ResponseEntity.ok(wishlist);
     }
@@ -62,10 +68,14 @@ public class WishlistController {
                                                        @PathVariable Long eventId ){
     
         Wishlist wishlist = wishlistRepository.findById(wishlistId)
-        .orElseThrow(() -> new RuntimeException("Wishlist not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Wishlist not found"));
 
         Event event = eventRepository.findById(eventId)
-        .orElseThrow(() -> new RuntimeException("Event not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+
+        if(wishlist.getEvents().contains(event)){
+            throw new BadRequestException("Event already exists in wishlist");
+        }
 
         wishlist.getEvents().add(event);
         Wishlist updatedWishlist = wishlistRepository.save(wishlist);
@@ -77,10 +87,14 @@ public class WishlistController {
                                                        @PathVariable Long eventId ){
     
         Wishlist wishlist = wishlistRepository.findById(wishlistId)
-        .orElseThrow(() -> new RuntimeException("Wishlist not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Wishlist not found"));
 
         Event event = eventRepository.findById(eventId)
-        .orElseThrow(() -> new RuntimeException("Event not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+
+        if(!wishlist.getEvents().contains(event)){
+            throw new BadRequestException("Event does not exist in wislist");
+        }
 
         wishlist.getEvents().remove(event);
         Wishlist updatedWishlist = wishlistRepository.save(wishlist);
@@ -91,7 +105,7 @@ public class WishlistController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteWishlist(@PathVariable Long id) {
         Wishlist wishlist = wishlistRepository.findById(id)
-        .orElseThrow(()-> new RuntimeException("Wishlist not found"));
+        .orElseThrow(()-> new ResourceNotFoundException("Wishlist not found"));
 
         wishlistRepository.delete(wishlist);
         return ResponseEntity.ok("Wishlist deleted");

@@ -45,7 +45,7 @@ public class User {
     private String password;
     private String phoneNumber;
 
-      @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private USER_ROLE role = USER_ROLE.ROLE_STUDENT;
 
     private LocalDateTime createdAt;

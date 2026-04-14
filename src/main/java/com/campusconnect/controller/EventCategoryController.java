@@ -5,70 +5,117 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.EventCategory;
 import com.campusconnect.repository.EventCategoryRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/event-categories")
 @RequiredArgsConstructor
 public class EventCategoryController {
 
-    private final EventCategoryRepository repository;
+    private final EventCategoryRepository eventCategoryRepository;
 
     @PostMapping
-    public ResponseEntity<EventCategory> create(@RequestBody EventCategory category) {
-        return ResponseEntity.ok(repository.save(category));
+    public ResponseEntity<EventCategory> createCategory(@RequestBody EventCategory req) {
+
+        EventCategory parentCategory = null;
+
+        if (req.getParentCategory() != null && req.getParentCategory().getId() != null) {
+            parentCategory = eventCategoryRepository.findById(req.getParentCategory().getId()).orElseThrow(() -> new ResourceNotFoundException("Parent category not found"));
+        }
+
+        EventCategory category = new EventCategory();
+        category.setName(req.getName());
+        category.setCategoryId(req.getCategoryId());
+        category.setLevel(req.getLevel());
+        category.setParentCategory(parentCategory);
+
+        EventCategory savedCategory = eventCategoryRepository.save(category);
+        return ResponseEntity.ok(savedCategory);
     }
 
     @GetMapping
-    public ResponseEntity<List<EventCategory>> getAll() {
-        return ResponseEntity.ok(repository.findAll());
+    public ResponseEntity<List<EventCategory>> getAllCategories() {
+        return ResponseEntity.ok(eventCategoryRepository.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventCategory> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-            repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Category not found"))
-        );
+    public ResponseEntity<EventCategory> getCategoryById(@PathVariable Long id) {
+        EventCategory category = eventCategoryRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
+
+        return ResponseEntity.ok(category);
+    }
+
+    @GetMapping("/category-id/{categoryId}")
+    public ResponseEntity<EventCategory> getCategoryByCategoryId(@PathVariable String categoryId) {
+        EventCategory category = eventCategoryRepository.findByCategoryId(categoryId)
+        .orElseThrow(() -> new ResourceNotFoundException("Category not found with categoryId " + categoryId));
+
+        return ResponseEntity.ok(category);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventCategory> update(@PathVariable Long id,
-                                                @RequestBody EventCategory details) {
+    public ResponseEntity<EventCategory> updateCategory(@PathVariable Long id,
+                                                        @RequestBody EventCategory req) {
+        EventCategory category = eventCategoryRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
 
-        EventCategory category = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+        EventCategory parentCategory = null;
+        if (req.getParentCategory() != null && req.getParentCategory().getId() != null) {
+            parentCategory = eventCategoryRepository.findById(req.getParentCategory().getId()).orElseThrow(() -> new ResourceNotFoundException("Parent category not found"));
+        }
 
-        category.setName(details.getName());
-        category.setCategoryId(details.getCategoryId());
-        category.setLevel(details.getLevel());
-        category.setParentCategory(details.getParentCategory());
+        category.setName(req.getName());
+        category.setCategoryId(req.getCategoryId());
+        category.setLevel(req.getLevel());
+        category.setParentCategory(parentCategory);
 
-        return ResponseEntity.ok(repository.save(category));
+        EventCategory updatedCategory = eventCategoryRepository.save(category);
+        return ResponseEntity.ok(updatedCategory);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<EventCategory> patch(@PathVariable Long id,
-                                              @RequestBody EventCategory details) {
+    public ResponseEntity<EventCategory> patchCategory(@PathVariable Long id,
+                                                       @RequestBody EventCategory req) {
+        EventCategory category = eventCategoryRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
 
-        EventCategory category = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+        if (req.getName() != null) {
+            category.setName(req.getName());
+        }
 
-        if (details.getName() != null)
-            category.setName(details.getName());
+        if (req.getCategoryId() != null) {
+            category.setCategoryId(req.getCategoryId());
+        }
 
-        if (details.getCategoryId() != null)
-            category.setCategoryId(details.getCategoryId());
+        if (req.getLevel() != 0) {
+            category.setLevel(req.getLevel());
+        }
 
-        return ResponseEntity.ok(repository.save(category));
+        if (req.getParentCategory() != null) {
+            if (req.getParentCategory().getId() == null) {
+                category.setParentCategory(null);
+            } else {
+                EventCategory parentCategory = eventCategoryRepository.findById(req.getParentCategory().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Parent category not found"));
+                category.setParentCategory(parentCategory);
+            }
+        }
+
+        EventCategory updatedCategory = eventCategoryRepository.save(category);
+        return ResponseEntity.ok(updatedCategory);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        repository.deleteById(id);
-        return ResponseEntity.ok("Deleted");
+    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
+        EventCategory category = eventCategoryRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
+
+        eventCategoryRepository.delete(category);
+        return ResponseEntity.ok("Category deleted successfully");
     }
 }

@@ -19,11 +19,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 public class EventCategory {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
     private String name;
 
@@ -35,6 +34,6 @@ public class EventCategory {
     private String categoryId;
 
     @NotNull
-    private int level;
+    private Integer level;  //fest-> technical fest -> hackathon 
     
 }

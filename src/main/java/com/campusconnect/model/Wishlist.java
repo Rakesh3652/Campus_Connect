@@ -20,12 +20,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-
 public class Wishlist {
     
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
@@ -33,6 +31,5 @@ public class Wishlist {
 
     @ManyToMany
     private Set<Event> events= new HashSet<>();
-
     
 }

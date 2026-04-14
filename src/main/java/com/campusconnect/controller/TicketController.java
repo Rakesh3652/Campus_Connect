@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.campusconnect.exception.BadRequestException;
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.Event;
 import com.campusconnect.model.Order;
 import com.campusconnect.model.Ticket;
@@ -30,26 +32,34 @@ public class TicketController {
     @PostMapping
     public ResponseEntity<Ticket> createTicket(@RequestBody Ticket req) {
 
+        if (req.getTicketCode() == null || req.getTicketCode().isBlank()) {
+            throw new BadRequestException("Ticket code is required");
+        }   
+
+        if (ticketRepository.findByTicketCode(req.getTicketCode()).isPresent()) {
+            throw new BadRequestException("Ticket code already exists");
+        }
+
         if (req.getUser() == null || req.getUser().getId() == null) {
-            throw new RuntimeException("User id is required");
+            throw new BadRequestException("User id is required");
         }
 
         if (req.getEvent() == null || req.getEvent().getId() == null) {
-            throw new RuntimeException("Event id is required");
+            throw new BadRequestException("Event id is required");
         }
 
         if (req.getOrder() == null || req.getOrder().getId() == null) {
-            throw new RuntimeException("Order id is required");
+            throw new BadRequestException("Order id is required");
         }
 
         User user = userRepository.findById(req.getUser().getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Event event = eventRepository.findById(req.getEvent().getId())
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         Order order = orderRepository.findById(req.getOrder().getId())
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         Ticket ticket = new Ticket();
         ticket.setTicketCode(req.getTicketCode());
@@ -71,7 +81,7 @@ public class TicketController {
     @GetMapping("/{id}")
     public ResponseEntity<Ticket> getTicketById(@PathVariable Long id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id " + id));
 
         return ResponseEntity.ok(ticket);
     }
@@ -79,24 +89,46 @@ public class TicketController {
     @GetMapping("/code/{ticketCode}")
     public ResponseEntity<Ticket> getTicketByCode(@PathVariable String ticketCode) {
         Ticket ticket = ticketRepository.findByTicketCode(ticketCode)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with code " + ticketCode));
+        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with code " + ticketCode));
 
         return ResponseEntity.ok(ticket);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Ticket> updateTicket(@PathVariable Long id, @RequestBody Ticket req) {
+
+    if (req.getTicketCode() == null || req.getTicketCode().isBlank()) {
+        throw new BadRequestException("Ticket code is required");
+    }
+
+    if (req.getUser() == null || req.getUser().getId() == null) {
+        throw new BadRequestException("User id is required");
+    }
+
+    if (req.getEvent() == null || req.getEvent().getId() == null) {
+        throw new BadRequestException("Event id is required");
+    }
+
+    if (req.getOrder() == null || req.getOrder().getId() == null) {
+        throw new BadRequestException("Order id is required");
+    }
+
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id " + id));
+
+        Ticket existingTicket = ticketRepository.findByTicketCode(req.getTicketCode()).orElse(null);
+        if (existingTicket != null && !existingTicket.getId().equals(id)) {
+         throw new BadRequestException("Ticket code already exists");
+}
 
         User user = userRepository.findById(req.getUser().getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Event event = eventRepository.findById(req.getEvent().getId())
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         Order order = orderRepository.findById(req.getOrder().getId())
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         ticket.setTicketCode(req.getTicketCode());
         ticket.setQrCode(req.getQrCode());
@@ -111,10 +143,19 @@ public class TicketController {
     @PatchMapping("/{id}")
     public ResponseEntity<Ticket> patchTicket(@PathVariable Long id, @RequestBody Ticket req) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id " + id));
 
         if (req.getTicketCode() != null) {
-            ticket.setTicketCode(req.getTicketCode());
+          if (req.getTicketCode().isBlank()) {
+             throw new BadRequestException("Ticket code cannot be empty");
+        }
+
+        Ticket existingTicket = ticketRepository.findByTicketCode(req.getTicketCode()).orElse(null);
+        if (existingTicket != null && !existingTicket.getId().equals(id)) {
+            throw new BadRequestException("Ticket code already exists");
+        }
+
+        ticket.setTicketCode(req.getTicketCode());
         }
 
         if (req.getQrCode() != null) {
@@ -123,19 +164,19 @@ public class TicketController {
 
         if (req.getUser() != null && req.getUser().getId() != null) {
             User user = userRepository.findById(req.getUser().getId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             ticket.setUser(user);
         }
 
         if (req.getEvent() != null && req.getEvent().getId() != null) {
             Event event = eventRepository.findById(req.getEvent().getId())
-                    .orElseThrow(() -> new RuntimeException("Event not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
             ticket.setEvent(event);
         }
 
         if (req.getOrder() != null && req.getOrder().getId() != null) {
             Order order = orderRepository.findById(req.getOrder().getId())
-                    .orElseThrow(() -> new RuntimeException("Order not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
             ticket.setOrder(order);
         }
 
@@ -146,7 +187,7 @@ public class TicketController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTicket(@PathVariable Long id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id " + id));
 
         ticketRepository.delete(ticket);
         return ResponseEntity.ok("Ticket deleted successfully");

@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.campusconnect.exception.BadRequestException;
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.Payment;
 import com.campusconnect.model.Transaction;
 import com.campusconnect.repository.PaymentRepository;
@@ -25,11 +27,23 @@ public class TransactionController {
     public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction req) {
 
         if (req.getPayment() == null || req.getPayment().getId() == null) {
-            throw new RuntimeException("Payment id is required");
+            throw new BadRequestException("Payment id is required");
+        }
+
+        if (req.getTransactionId() == null || req.getTransactionId().isBlank()) {
+         throw new BadRequestException("Transaction id is required");
+        }
+
+        if (req.getGateway() == null || req.getGateway().isBlank()) {
+         throw new BadRequestException("Gateway is required");
+        }
+
+        if (transactionRepository.findByTransactionId(req.getTransactionId()).isPresent()) {
+         throw new BadRequestException("Transaction id already exists");
         }
 
         Payment payment = paymentRepository.findById(req.getPayment().getId())
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
 
         Transaction transaction = new Transaction();
         transaction.setTransactionId(req.getTransactionId());
@@ -49,7 +63,7 @@ public class TransactionController {
     @GetMapping("/{id}")
     public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
         Transaction transaction = transactionRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Transaction not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with id " + id));
 
         return ResponseEntity.ok(transaction);
     }
@@ -57,56 +71,88 @@ public class TransactionController {
     @GetMapping("/transaction-id/{transactionId}")
     public ResponseEntity<Transaction> getByTransactionId(@PathVariable String transactionId) {
         Transaction transaction = transactionRepository.findByTransactionId(transactionId)
-        .orElseThrow(() -> new RuntimeException("Transaction not found with transactionId " + transactionId));
+        .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with transactionId " + transactionId));
 
         return ResponseEntity.ok(transaction);
     }
 
+
     @PutMapping("/{id}")
     public ResponseEntity<Transaction> updateTransaction(@PathVariable Long id,
-                                                         @RequestBody Transaction req) {
-        Transaction transaction = transactionRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Transaction not found with id " + id));
+                                                     @RequestBody Transaction req) {
 
-        Payment payment = paymentRepository.findById(req.getPayment().getId())
-        .orElseThrow(() -> new RuntimeException("Payment not found"));
+    if (req.getTransactionId() == null || req.getTransactionId().isBlank()) {
+        throw new BadRequestException("Transaction id is required");
+    }
 
-        transaction.setTransactionId(req.getTransactionId());
-        transaction.setGateway(req.getGateway());
-        transaction.setPayment(payment);
+    if (req.getGateway() == null || req.getGateway().isBlank()) {
+        throw new BadRequestException("Gateway is required");
+    }
 
-        Transaction updatedTransaction = transactionRepository.save(transaction);
-        return ResponseEntity.ok(updatedTransaction);
+    if (req.getPayment() == null || req.getPayment().getId() == null) {
+        throw new BadRequestException("Payment id is required");
+    }
+
+    Transaction transaction = transactionRepository.findById(id)
+    .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with id " + id));
+
+    Transaction existingTransaction = transactionRepository.findByTransactionId(req.getTransactionId()).orElse(null);
+    if (existingTransaction != null && !existingTransaction.getId().equals(id)) {
+        throw new BadRequestException("Transaction id already exists");
+    }
+
+    Payment payment = paymentRepository.findById(req.getPayment().getId())
+    .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+
+    transaction.setTransactionId(req.getTransactionId());
+    transaction.setGateway(req.getGateway());
+    transaction.setPayment(payment);
+
+    Transaction updatedTransaction = transactionRepository.save(transaction);
+    return ResponseEntity.ok(updatedTransaction);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Transaction> patchTransaction(@PathVariable Long id,
-                                                        @RequestBody Transaction req) {
-        Transaction transaction = transactionRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Transaction not found with id " + id));
+                                                    @RequestBody Transaction req) {
+    Transaction transaction = transactionRepository.findById(id)
+    .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with id " + id));
 
-        if (req.getTransactionId() != null) {
-            transaction.setTransactionId(req.getTransactionId());
+    if (req.getTransactionId() != null) {
+        if (req.getTransactionId().isBlank()) {
+            throw new BadRequestException("Transaction id cannot be empty");
         }
 
-        if (req.getGateway() != null) {
-            transaction.setGateway(req.getGateway());
+        Transaction existingTransaction = transactionRepository.findByTransactionId(req.getTransactionId()).orElse(null);
+        if (existingTransaction != null && !existingTransaction.getId().equals(id)) {
+            throw new BadRequestException("Transaction id already exists");
         }
 
-        if (req.getPayment() != null && req.getPayment().getId() != null) {
-            Payment payment = paymentRepository.findById(req.getPayment().getId())
-            .orElseThrow(() -> new RuntimeException("Payment not found"));
-            transaction.setPayment(payment);
-        }
-
-        Transaction updatedTransaction = transactionRepository.save(transaction);
-        return ResponseEntity.ok(updatedTransaction);
+        transaction.setTransactionId(req.getTransactionId());
     }
+
+    if (req.getGateway() != null) {
+        if (req.getGateway().isBlank()) {
+            throw new BadRequestException("Gateway cannot be empty");
+        }
+        transaction.setGateway(req.getGateway());
+    }
+
+    if (req.getPayment() != null && req.getPayment().getId() != null) {
+        Payment payment = paymentRepository.findById(req.getPayment().getId())
+        .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+        transaction.setPayment(payment);
+    }
+
+    Transaction updatedTransaction = transactionRepository.save(transaction);
+    return ResponseEntity.ok(updatedTransaction);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
         Transaction transaction = transactionRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Transaction not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with id " + id));
 
         transactionRepository.delete(transaction);
         return ResponseEntity.ok("Transaction deleted successfully");

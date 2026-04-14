@@ -1,11 +1,18 @@
 package com.campusconnect.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.User;
 import com.campusconnect.repository.UserRepository;
 
@@ -27,7 +34,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
 
         return ResponseEntity.ok(user);
     }
@@ -35,7 +42,7 @@ public class UserController {
     @GetMapping("/email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email " + email));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with email " + email));
 
         return ResponseEntity.ok(user);
     }
@@ -43,7 +50,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User req) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
 
         user.setFirstName(req.getFirstName());
         user.setLastName(req.getLastName());
@@ -59,7 +66,7 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<User> patchUser(@PathVariable Long id, @RequestBody User req) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
 
         if (req.getFirstName() != null) {
             user.setFirstName(req.getFirstName());
@@ -92,7 +99,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
 
         userRepository.delete(user);
         return ResponseEntity.ok("User deleted successfully");

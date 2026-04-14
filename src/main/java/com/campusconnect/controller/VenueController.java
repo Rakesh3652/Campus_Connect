@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.campusconnect.exception.BadRequestException;
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.College;
 import com.campusconnect.model.Venue;
 import com.campusconnect.repository.CollegeRepository;
@@ -24,11 +26,11 @@ public class VenueController {
     public ResponseEntity<Venue> createVenue(@RequestBody Venue req) {
 
         if (req.getCollege() == null || req.getCollege().getId() == null) {
-            throw new RuntimeException("College id is required");
+            throw new BadRequestException("College id is required");
         }
 
         College college = collegeRepository.findById(req.getCollege().getId())
-                .orElseThrow(() -> new RuntimeException("College not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("College not found"));
 
         Venue venue = new Venue();
         venue.setName(req.getName());
@@ -52,7 +54,7 @@ public class VenueController {
     @GetMapping("/{id}")
     public ResponseEntity<Venue> getVenueById(@PathVariable Long id) {
         Venue venue = venueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Venue not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Venue not found with id " + id));
 
         return ResponseEntity.ok(venue);
     }
@@ -65,10 +67,10 @@ public class VenueController {
     @PutMapping("/{id}")
     public ResponseEntity<Venue> updateVenue(@PathVariable Long id, @RequestBody Venue req) {
         Venue venue = venueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Venue not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Venue not found with id " + id));
 
         College college = collegeRepository.findById(req.getCollege().getId())
-                .orElseThrow(() -> new RuntimeException("College not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("College not found"));
 
         venue.setName(req.getName());
         venue.setLocality(req.getLocality());
@@ -86,7 +88,7 @@ public class VenueController {
     @PatchMapping("/{id}")
     public ResponseEntity<Venue> patchVenue(@PathVariable Long id, @RequestBody Venue req) {
         Venue venue = venueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Venue not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Venue not found with id " + id));
 
         if (req.getName() != null) {
             venue.setName(req.getName());
@@ -118,7 +120,7 @@ public class VenueController {
 
         if (req.getCollege() != null && req.getCollege().getId() != null) {
             College college = collegeRepository.findById(req.getCollege().getId())
-                    .orElseThrow(() -> new RuntimeException("College not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("College not found"));
             venue.setCollege(college);
         }
 
@@ -129,7 +131,7 @@ public class VenueController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteVenue(@PathVariable Long id) {
         Venue venue = venueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Venue not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Venue not found with id " + id));
 
         venueRepository.delete(venue);
         return ResponseEntity.ok("Venue deleted successfully");

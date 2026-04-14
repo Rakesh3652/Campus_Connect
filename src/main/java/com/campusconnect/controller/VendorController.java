@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.campusconnect.domain.AccountStatus;
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.User;
 import com.campusconnect.model.Vendor;
 import com.campusconnect.repository.UserRepository;
@@ -27,7 +28,7 @@ public class VendorController {
         User user = null;
         if (req.getUser() != null && req.getUser().getId() != null) {
             user = userRepository.findById(req.getUser().getId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         }
 
         Vendor vendor = new Vendor();
@@ -37,7 +38,7 @@ public class VendorController {
         vendor.setCommittee(req.getCommittee());
         vendor.setBusinessDetail(req.getBusinessDetail());
         vendor.setBankDetails(req.getBankDetails());
-        vendor.setEmailVerified(req.isEmailVerified());
+        vendor.setIsEmailVerified(req.getIsEmailVerified());
         vendor.setAccountStatus(req.getAccountStatus());
         vendor.setUser(user);
 
@@ -53,7 +54,7 @@ public class VendorController {
     @GetMapping("/{id}")
     public ResponseEntity<Vendor> getVendorById(@PathVariable Long id) {
         Vendor vendor = vendorRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Vendor not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id " + id));
 
         return ResponseEntity.ok(vendor);
     }
@@ -61,7 +62,7 @@ public class VendorController {
     @GetMapping("/email/{email}")
     public ResponseEntity<Vendor> getVendorByEmail(@PathVariable String email) {
         Vendor vendor = vendorRepository.findByEmail(email)
-        .orElseThrow(() -> new RuntimeException("Vendor not found with email " + email));
+        .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with email " + email));
 
         return ResponseEntity.ok(vendor);
     }
@@ -75,12 +76,12 @@ public class VendorController {
     @PutMapping("/{id}")
     public ResponseEntity<Vendor> updateVendor(@PathVariable Long id, @RequestBody Vendor req) {
         Vendor vendor = vendorRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Vendor not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id " + id));
 
         User user = null;
         if (req.getUser() != null && req.getUser().getId() != null) {
             user = userRepository.findById(req.getUser().getId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         }
 
         vendor.setName(req.getName());
@@ -89,7 +90,7 @@ public class VendorController {
         vendor.setCommittee(req.getCommittee());
         vendor.setBusinessDetail(req.getBusinessDetail());
         vendor.setBankDetails(req.getBankDetails());
-        vendor.setEmailVerified(req.isEmailVerified());
+        vendor.setIsEmailVerified(req.getIsEmailVerified());
         vendor.setAccountStatus(req.getAccountStatus());
         vendor.setUser(user);
 
@@ -100,7 +101,7 @@ public class VendorController {
     @PatchMapping("/{id}")
     public ResponseEntity<Vendor> patchVendor(@PathVariable Long id, @RequestBody Vendor req) {
         Vendor vendor = vendorRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Vendor not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id " + id));
 
         if (req.getName() != null) {
             vendor.setName(req.getName());
@@ -126,7 +127,7 @@ public class VendorController {
             vendor.setBankDetails(req.getBankDetails());
         }
 
-        vendor.setEmailVerified(req.isEmailVerified());
+        vendor.setIsEmailVerified(req.getIsEmailVerified());
 
         if (req.getAccountStatus() != null) {
             vendor.setAccountStatus(req.getAccountStatus());
@@ -134,7 +135,7 @@ public class VendorController {
 
         if (req.getUser() != null && req.getUser().getId() != null) {
             User user = userRepository.findById(req.getUser().getId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             vendor.setUser(user);
         }
 
@@ -145,7 +146,7 @@ public class VendorController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteVendor(@PathVariable Long id) {
         Vendor vendor = vendorRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Vendor not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id " + id));
 
         vendorRepository.delete(vendor);
         return ResponseEntity.ok("Vendor deleted successfully");

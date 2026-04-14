@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.campusconnect.exception.BadRequestException;
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.Order;
 import com.campusconnect.model.OrderItem;
 import com.campusconnect.model.User;
@@ -26,22 +28,26 @@ public class OrderController {
     public ResponseEntity<Order> createOrder(@RequestBody Order req) {
 
         if (req.getUser() == null || req.getUser().getId() == null) {
-            throw new RuntimeException("User id is required");
+            throw new BadRequestException("User id is required");
         }
 
         User user = userRepository.findById(req.getUser().getId())
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Order order = new Order();
         order.setUser(user);
         order.setOrderDate(LocalDateTime.now());
         order.setItems(req.getItems());
 
+
         if (order.getItems() != null) {
-            for (OrderItem item : order.getItems()) {
-                item.setOrder(order);
-            }
+        for (OrderItem item : order.getItems()) {
+        if (item.getQuantity() <= 0) {
+            throw new BadRequestException("Valid item quantity is required");
         }
+        item.setOrder(order);
+        }
+    }
 
         Order savedOrder = orderRepository.save(order);
         return ResponseEntity.ok(savedOrder);
@@ -56,7 +62,7 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         Order order = orderRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + id));
 
         return ResponseEntity.ok(order);
     }
@@ -70,22 +76,25 @@ public class OrderController {
     @PutMapping("/{id}")
     public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order req) {
         Order order = orderRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + id));
 
         if (req.getUser() != null && req.getUser().getId() != null) {
             User user = userRepository.findById(req.getUser().getId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             order.setUser(user);
         }
 
         if (req.getItems() != null) {
-            order.getItems().clear();
-            order.getItems().addAll(req.getItems());
+         order.getItems().clear();
+         order.getItems().addAll(req.getItems());
 
-            for (OrderItem item : order.getItems()) {
-                item.setOrder(order);
-            }
+         for (OrderItem item : order.getItems()) {
+        if (item.getQuantity() <= 0) {
+            throw new BadRequestException("Valid item quantity is required");
         }
+        item.setOrder(order);
+     }
+    }
 
         Order updatedOrder = orderRepository.save(order);
         return ResponseEntity.ok(updatedOrder);
@@ -94,11 +103,11 @@ public class OrderController {
     @PatchMapping("/{id}")
     public ResponseEntity<Order> patchOrder(@PathVariable Long id, @RequestBody Order req) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + id));
 
         if (req.getUser() != null && req.getUser().getId() != null) {
             User user = userRepository.findById(req.getUser().getId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             order.setUser(user);
         }
 
@@ -107,7 +116,10 @@ public class OrderController {
             order.getItems().addAll(req.getItems());
 
             for (OrderItem item : order.getItems()) {
-                item.setOrder(order);
+            if(item.getQuantity() <=0 ){
+                throw new BadRequestException("Valid item qunatity is required");
+            }
+             item.setOrder(order);
             }
         }
 
@@ -118,7 +130,7 @@ public class OrderController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteOrder(@PathVariable Long id) {
         Order order = orderRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + id));
 
         orderRepository.delete(order);
         return ResponseEntity.ok("Order deleted successfully");

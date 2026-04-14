@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.College;
 import com.campusconnect.repository.CollegeRepository;
 
@@ -37,7 +38,7 @@ public class CollegeController {
     @GetMapping("/{id}")
     public ResponseEntity<College> getCollegeById(@PathVariable Long id) {
         College college = collegeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("College not found with id: " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("College not found with id: " + id));
         return ResponseEntity.ok(college);
     }
 
@@ -49,7 +50,7 @@ public class CollegeController {
 
     @GetMapping("/search/name/{collegeName}")
     public ResponseEntity<List<College>> searchCollegeByName(@PathVariable String collegeName){
-        List<College> colleges = collegeRepository.findByNameContainingIgnoreCase(collegeName);
+        List<College> colleges = collegeRepository.findByCollegeNameContainingIgnoreCase(collegeName);
         return ResponseEntity.ok(colleges);
     }
 
@@ -71,7 +72,7 @@ public class CollegeController {
                                                  @RequestBody College updateCollege) {
 
         College college = collegeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("College not found with id " +id));
+        .orElseThrow(() -> new ResourceNotFoundException("College not found with id " +id));
 
         college.setCollegeName(updateCollege.getCollegeName());
         college.setLocation(updateCollege.getLocation());
@@ -86,7 +87,7 @@ public class CollegeController {
                                                 @RequestBody College details) {
 
         College college = collegeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("College not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("College not found with id " + id));
 
         if (details.getCollegeName() != null)
             college.setCollegeName(details.getCollegeName());
@@ -103,7 +104,7 @@ public class CollegeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCollege(@PathVariable Long id) {
         College college = collegeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("College not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("College not found with id " + id));
 
         collegeRepository.delete(college);
         return ResponseEntity.ok("College deleted successfully");

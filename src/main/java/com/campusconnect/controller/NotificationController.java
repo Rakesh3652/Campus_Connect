@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.campusconnect.exception.BadRequestException;
+import com.campusconnect.exception.ResourceNotFoundException;
 import com.campusconnect.model.Notification;
 import com.campusconnect.model.User;
 import com.campusconnect.repository.NotificationRepository;
@@ -25,11 +27,15 @@ public class NotificationController {
     public ResponseEntity<Notification> createNotification(@RequestBody Notification req) {
 
         if (req.getUser() == null || req.getUser().getId() == null) {
-            throw new RuntimeException("User id is required");
+            throw new BadRequestException("User id is required");
         }
 
         User user = userRepository.findById(req.getUser().getId())
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (req.getMessage() == null || req.getMessage().isBlank()) {
+            throw new BadRequestException("Notification message is required");
+}
 
         Notification notification = new Notification();
         notification.setMessage(req.getMessage());
@@ -50,7 +56,7 @@ public class NotificationController {
     @GetMapping("/{id}")
     public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
         Notification notification = notificationRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Notification not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id " + id));
 
         return ResponseEntity.ok(notification);
     }
@@ -59,7 +65,7 @@ public class NotificationController {
     public ResponseEntity<Notification> updateNotification(@PathVariable Long id,
                                                            @RequestBody Notification req) {
         Notification notification = notificationRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Notification not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id " + id));
 
         if (req.getMessage() != null) {
             notification.setMessage(req.getMessage());
@@ -71,10 +77,13 @@ public class NotificationController {
 
         if (req.getUser() != null && req.getUser().getId() != null) {
             User user = userRepository.findById(req.getUser().getId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             notification.setUser(user);
         }
 
+        if (req.getMessage() == null || req.getMessage().isBlank()) {
+         throw new BadRequestException("Notification message is required");
+}
         Notification updatedNotification = notificationRepository.save(notification);
         return ResponseEntity.ok(updatedNotification);
     }
@@ -83,7 +92,7 @@ public class NotificationController {
     public ResponseEntity<Notification> patchNotification(@PathVariable Long id,
                                                           @RequestBody Notification req) {
         Notification notification = notificationRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Notification not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id " + id));
 
         if (req.getMessage() != null) {
             notification.setMessage(req.getMessage());
@@ -95,9 +104,13 @@ public class NotificationController {
 
         if (req.getUser() != null && req.getUser().getId() != null) {
             User user = userRepository.findById(req.getUser().getId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             notification.setUser(user);
         }
+
+        if (req.getMessage() == null || req.getMessage().isBlank()) {
+             throw new BadRequestException("Notification message is required");
+}
 
         Notification updatedNotification = notificationRepository.save(notification);
         return ResponseEntity.ok(updatedNotification);
@@ -106,7 +119,7 @@ public class NotificationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteNotification(@PathVariable Long id) {
         Notification notification = notificationRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Notification not found with id " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id " + id));
 
         notificationRepository.delete(notification);
         return ResponseEntity.ok("Notification deleted successfully");
