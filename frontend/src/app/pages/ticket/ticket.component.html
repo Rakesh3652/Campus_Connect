@@ -1,0 +1,137 @@
+<nav class="navbar">
+  <div class="logo">Campus<span>Connect</span></div>
+  <div class="nav-right">
+    <button class="genre-btn" (click)="downloadTicket()">⬇ Download Ticket</button>
+    <div class="profile" routerLink="/profile">
+      <img src="https://i.pravatar.cc/40" alt="profile" />
+    </div>
+  </div>
+</nav>
+
+<ng-container *ngIf="ticket; else notFound">
+  <div class="ticket-page">
+
+  <div class="page-header">
+    <h2>Your Ticket</h2>
+    <p>Ticket ID: <span class="ticket-id-badge">#{{ticket.id}}</span></p>
+  </div>
+
+  <!-- TICKET CARD -->
+  <div class="ticket-wrapper">
+
+    <!-- LEFT: Ticket stub -->
+    <div class="ticket-card">
+
+      <!-- Banner image -->
+      <div class="ticket-banner">
+        <img [src]="ticket.event.imageUrl" alt="Event Banner" />
+        <div class="ticket-banner-overlay">
+          <span class="category-chip">{{ticket.event.category}}</span>
+          <h1>{{ticket.event.name}}</h1>
+        </div>
+      </div>
+
+      <!-- Ticket Info -->
+      <div class="ticket-body">
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">📅 Date</span>
+            <span class="info-value">{{formatDate(ticket.event.startDate)}}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">🕘 Time</span>
+            <span class="info-value">{{formatTime(ticket.event.startDate)}} onwards</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">📍 Venue</span>
+            <span class="info-value">{{ticket.event.venue}}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">🎟 Pass Type</span>
+            <span class="info-value">Early Bird Pass</span>
+          </div>
+        </div>
+
+        <!-- Tear line -->
+        <div class="tear-line">
+          <div class="tear-circle left"></div>
+          <div class="tear-dots"></div>
+          <div class="tear-circle right"></div>
+        </div>
+
+        <!-- Ticket Code & QR -->
+        <div class="ticket-footer">
+          <div class="ticket-code-block">
+            <span class="info-label">Unique Ticket Code</span>
+            <div class="ticket-code">{{ticket.ticketCode}}</div>
+            <span class="info-label" style="margin-top: 14px;">Holder</span>
+            <div class="ticket-holder">{{ticket.user.name}}</div>
+            <div class="ticket-email">{{ticket.user.email}}</div>
+            <span class="info-label" style="margin-top: 14px;">Order Reference</span>
+            <div class="ticket-holder">#{{ticket.order.id}} &nbsp;|&nbsp; ₹{{ticket.order.totalAmount}}</div>
+            <span class="info-label" style="margin-top: 14px;">Booked On</span>
+            <div class="ticket-holder">{{formatDate(ticket.bookedAt)}} at {{formatTime(ticket.bookedAt)}}</div>
+          </div>
+
+          <!-- QR CODE section -->
+          <div class="qr-block" (click)="toggleQr()">
+            <img [src]="ticket.qrCode" alt="QR Code" class="qr-img" [class.qr-expanded]="isQrExpanded" />
+            <p class="qr-hint">{{isQrExpanded ? 'Tap to shrink' : 'Tap to enlarge'}}</p>
+            <div class="qr-badge">Scan at entry</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Info sidebar -->
+    <div class="info-sidebar">
+
+      <div class="sidebar-card status-card">
+        <div class="status-dot confirmed"></div>
+        <div>
+          <div class="sidebar-label">Status</div>
+          <div class="sidebar-value confirmed-text">Confirmed ✓</div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-label">Event Description</div>
+        <p class="sidebar-desc">{{ticket.event.description}}</p>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-label">QR Code Info</div>
+        <p class="sidebar-desc">
+          Your ticket has a unique QR code linked to <strong>{{ticket.ticketCode}}</strong>. 
+          Present this code at the entrance for entry verification. Each code is valid for one-time use only.
+        </p>
+      </div>
+
+      <div class="sidebar-card refund-card">
+        <div class="sidebar-label">⚠ Refund Policy</div>
+        <p class="sidebar-desc">Tickets are non-refundable 48 hours before the event.</p>
+      </div>
+
+      <button class="btn-download" (click)="downloadTicket()">
+        ⬇ Download / Print Ticket
+      </button>
+
+    </div>
+
+  </div>
+  </div>
+</ng-container>
+
+<ng-template #notFound>
+  <div class="empty-state">
+    <h2>Ticket not found</h2>
+    <p>We couldn't find a ticket with that ID.</p>
+    <a href="/view-booking" class="btn-explore">← Back to My Bookings</a>
+  </div>
+</ng-template>
+
+<footer>
+  <p>© 2026 CampusConnect • All Rights Reserved</p>
+</footer>

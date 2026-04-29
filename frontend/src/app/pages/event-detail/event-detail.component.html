@@ -1,0 +1,58 @@
+<nav class="navbar">
+  <a href="#" class="nav-logo">Campus<span>Connect</span></a>
+  <div style="display: flex; align-items: center; gap: 15px;">
+    <img src="https://i.pravatar.cc/150?img=32" alt="Profile" style="width:38px;height:38px;border-radius:50%;border:2px solid var(--teal-bg)">
+  </div>
+</nav>
+
+<main class="page-container">
+
+  <section class="main-content">
+    <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1200" alt="Hackathon" class="hero-img">
+    <h1 class="event-title">National Hackathon 2024</h1>
+    <p class="about-text">
+      Join the biggest tech event of the year! Build for the future and win prizes worth ₹5,00,000.
+      Experience 48 hours of high-intensity coding, networking, and fun.
+    </p>
+
+    <div style="background:var(--teal-bg); padding:1.5rem; border-radius:20px; display:flex; gap:1.5rem; color:var(--teal-dark); font-weight:600">
+      <span>📍 Auditorium Hall A</span>
+      <span>📅 24 Oct - 26 Oct</span>
+    </div>
+  </section>
+
+  <aside class="sidebar">
+    <div class="booking-card">
+      <div class="price-container">
+        <p class="price-label">Total Investment</p>
+        <div class="price-tag" id="total-price">₹{{totalPrice}}</div>
+      </div>
+
+      <div class="form-group">
+        <label>Select Entry Type</label>
+        <select id="entry-type" (change)="updateBasePrice($event)" style="width:100%; padding:0.8rem; border-radius:12px; border:1px solid var(--gray-200); font-family:inherit; font-weight:600">
+          <option value="499">Early Bird - ₹499</option>
+          <option value="799">Regular Pass - ₹799</option>
+          <option value="1200">Pro VIP Pass - ₹1200</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Quantity</label>
+        <div class="counter-box">
+          <button class="counter-btn" (click)="decrement()" [disabled]="count <= 1">&minus;</button>
+          <span class="ticket-num">{{count}}</span>
+          <button class="counter-btn" (click)="increment()">&plus;</button>
+        </div>
+      </div>
+
+      <button class="btn-book">Secure My Spot →</button>
+
+      <div class="urgency-badge">
+        ⚡ Only 12 spots left in this tier!
+      </div>
+    </div>
+  </aside>
+
+</main>
+

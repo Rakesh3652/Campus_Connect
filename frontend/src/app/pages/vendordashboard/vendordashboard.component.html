@@ -1,0 +1,71 @@
+<nav class="navbar">
+  <div class="logo">Campus<span>Connect</span></div>
+  <div class="nav-search">
+    <input type="text" placeholder="Search your events..." />
+  </div>
+  <div class="nav-right">
+    <button class="genre-btn">📊 Dashboard</button>
+    <div class="profile" routerLink="/profile">
+      <img src="https://i.pravatar.cc/40" alt="profile" />
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h2>Vendor Dashboard</h2>
+  <p>Overview of your events and performance</p>
+</div>
+
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h4>Total Earnings</h4>
+      <div class="stat-value">₹ {{totalEarnings}}</div>
+      <div class="stat-icon">💰</div>
+    </div>
+    <div class="stat-card">
+      <h4>Ticket Sales</h4>
+      <div class="stat-value">{{totalTicketSale}}</div>
+      <div class="stat-icon">🎟️</div>
+    </div>
+    <div class="stat-card">
+      <h4>Net Earnings</h4>
+      <div class="stat-value">₹ {{netEarnings}}</div>
+      <div class="stat-icon">📈</div>
+    </div>
+    <div class="stat-card">
+      <h4>Total Tax</h4>
+      <div class="stat-value">₹ {{totalTax}}</div>
+      <div class="stat-icon">💸</div>
+    </div>
+    <div class="stat-card">
+      <h4>Capacity</h4>
+      <div class="stat-value">{{capacity}}</div>
+      <div class="stat-icon">👥</div>
+    </div>
+    <div class="stat-card">
+      <h4>Transactions</h4>
+      <div class="stat-value">{{totalTransactions}}</div>
+      <div class="stat-icon">💳</div>
+    </div>
+  </div>
+</section>
+
+<section class="events-section">
+  <h2>Your Active Events</h2>
+  <div class="event-row">
+    <div class="event-card" *ngFor="let event of myEvents" (click)="viewEventDashboard(event.eventId)">
+      <img [src]="event.image" />
+      <div class="event-overlay">
+        <span class="rating">⭐ {{event.rating}}</span>
+        <h3>{{event.title}}</h3>
+        <p>{{event.category}}</p>
+        <button class="register-btn">Edit</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 CampusConnect • All Rights Reserved</p>
+</footer>

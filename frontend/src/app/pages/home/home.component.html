@@ -1,0 +1,122 @@
+<nav class="navbar">
+  <div class="logo">Campus<span>Connect</span></div>
+  <div class="nav-search">
+    <input type="text" placeholder="Search events, clubs, workshops..." />
+  </div>
+  <div class="nav-right">
+    <div class="dropdown">
+      <button class="genre-btn" (click)="toggleGenre()">Genres ▾</button>
+      <div class="dropdown-menu" [class.show]="isGenreMenuOpen">
+        <a href="#">Hackathons</a>
+        <a href="#">Workshops</a>
+        <a href="#">Music</a>
+        <a href="#">Sports</a>
+        <a href="#">Tech Talks</a>
+      </div>
+    </div>
+    <div class="profile" routerLink="/profile">
+      <img src="https://i.pravatar.cc/40" alt="profile" />
+    </div>
+  </div>
+</nav>
+
+<section class="hero-carousel">
+  <div class="carousel">
+    <div class="slides" [style.transform]="'translateX(-' + slideIndex * 100 + '%)'">
+      <div class="slide">
+        <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678" />
+        <div class="hero-text">
+          <h1>Campus Music Fest</h1>
+          <p>Experience the biggest music event on campus</p>
+        </div>
+      </div>
+      <div class="slide">
+        <img src="https://images.unsplash.com/photo-1515169067868-5387ec356754" />
+        <div class="hero-text">
+          <h1>National Hackathon</h1>
+          <p>Build, innovate and win exciting prizes</p>
+        </div>
+      </div>
+      <div class="slide">
+        <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94" />
+        <div class="hero-text">
+          <h1>AI Workshop</h1>
+          <p>Learn Artificial Intelligence hands-on</p>
+        </div>
+      </div>
+    </div>
+    <button class="prev" (click)="prevSlide()">&#10094;</button>
+    <button class="next" (click)="nextSlide()">&#10095;</button>
+  </div>
+</section>
+
+<section class="trending-section">
+  <div class="trending-header">
+    <h2>Trending Events</h2>
+    <a href="#">See All ›</a>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="scroll-btn left" (click)="scrollLeft()">&#10094;</button>
+    <div class="event-row" #eventRow>
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1515169067868-5387ec356754" />
+        <div class="event-overlay">
+          <span class="rating">⭐ 9.4</span>
+          <h3>Cyber Security CTF</h3>
+          <p>Hackathon • Security Club</p>
+          <button class="register-btn">Register</button>
+        </div>
+      </div>
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678" />
+        <div class="event-overlay">
+          <span class="rating">⭐ 9.1</span>
+          <h3>Campus Music Fest</h3>
+          <p>Music • Cultural Club</p>
+          <button class="register-btn">Register</button>
+        </div>
+      </div>
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94" />
+        <div class="event-overlay">
+          <span class="rating">⭐ 8.8</span>
+          <h3>AI Workshop</h3>
+          <p>Tech • AI Society</p>
+          <button class="register-btn">Register</button>
+        </div>
+      </div>
+      <div class="event-card">
+        <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c" />
+        <div class="event-overlay">
+          <span class="rating">⭐ 9.2</span>
+          <h3>Startup Pitch Night</h3>
+          <p>Entrepreneurship</p>
+          <button class="register-btn">Register</button>
+        </div>
+      </div>
+    </div>
+    <button class="scroll-btn right" (click)="scrollRight()">&#10095;</button>
+  </div>
+</section>
+
+<section class="clubs">
+  <h2>Popular Clubs</h2>
+  <div class="club-grid">
+    <div class="club-card">
+      <h3>Cyber Security Club</h3>
+      <p>Capture the Flag, security workshops and hacking labs.</p>
+    </div>
+    <div class="club-card">
+      <h3>Robotics Club</h3>
+      <p>Build robots and compete in robotics competitions.</p>
+    </div>
+    <div class="club-card">
+      <h3>Music Society</h3>
+      <p>Perform in concerts and campus festivals.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 CampusConnect • All Rights Reserved</p>
+</footer>

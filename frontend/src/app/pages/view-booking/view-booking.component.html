@@ -1,0 +1,58 @@
+<nav class="navbar">
+  <div class="logo">Campus<span>Connect</span></div>
+  <div class="nav-search">
+    <input type="text" placeholder="Search your bookings..." />
+  </div>
+  <div class="nav-right">
+    <button class="genre-btn">🎟 My Bookings</button>
+    <div class="profile" routerLink="/profile">
+      <img src="https://i.pravatar.cc/40" alt="profile" />
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h2>Your Bookings</h2>
+  <p>Manage and track all your registered events</p>
+</div>
+
+<section class="bookings-section" *ngIf="bookings.length > 0; else empty">
+  <div class="booking-grid">
+
+    <div class="booking-card" *ngFor="let booking of bookings">
+      <img [src]="booking.image" class="booking-card-img" />
+      <div class="booking-card-body">
+        <div>
+          <h3>{{booking.title}}</h3>
+          <p class="booking-meta">📂 {{booking.category}}</p>
+          <p class="booking-meta">📅 {{booking.date}}</p>
+          <p class="booking-meta">📍 {{booking.venue}}</p>
+          <span class="booking-status"
+            [class.status-confirmed]="booking.status === 'confirmed'"
+            [class.status-pending]="booking.status === 'pending'">
+            {{booking.status === 'confirmed' ? '✓ Confirmed' : '⏳ Pending'}}
+          </span>
+        </div>
+        <div class="booking-card-actions">
+          <button class="btn-view" (click)="viewTicket(booking.ticketId)">
+            🎟 View Ticket
+          </button>
+          <button class="btn-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<ng-template #empty>
+  <div class="empty-state">
+    <h2>No bookings yet</h2>
+    <p>Register for events to see them here!</p>
+    <a href="/" class="btn-explore">Browse Events</a>
+  </div>
+</ng-template>
+
+<footer>
+  <p>© 2026 CampusConnect • All Rights Reserved</p>
+</footer>

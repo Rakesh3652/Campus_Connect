@@ -1,0 +1,165 @@
+:host {
+    display: block;
+    --teal: #00897B;
+    --teal-light: #00BFA5;
+    --teal-dark: #006064;
+    --teal-bg: #E0F2F1;
+    --teal-mid: #4DB6AC;
+    --white: #fff;
+    --gray-50: #F8FAFA;
+    --gray-100: #F1F5F5;
+    --gray-200: #E2EBEA;
+    --gray-400: #9AB0AD;
+    --gray-600: #5C7A77;
+    --gray-800: #2C3E3C;
+    --text-primary: #1A2E2C;
+    --text-secondary: #4A6866;
+    --text-muted: #8FAEAB;
+    --red: #E53935;
+    --shadow: 0 8px 30px rgba(0, 137, 123, 0.08);
+
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--gray-50);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* NAVBAR */
+.navbar {
+    background: #fff;
+    padding: 1rem 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.nav-logo { font-weight: 800; font-size: 1.4rem; color: var(--teal); text-decoration: none; letter-spacing: -0.5px; }
+.nav-logo span { color: var(--text-primary); }
+
+/* LAYOUT */
+.page-container {
+    max-width: 1200px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2.5rem;
+}
+
+/* HERO AREA */
+.hero-img { width: 100%; height: 400px; border-radius: 24px; object-fit: cover; margin-bottom: 2rem; box-shadow: var(--shadow); }
+.event-title { font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 1.5rem; line-height: 1.1; }
+
+.about-text { color: var(--text-secondary); font-size: 1.05rem; margin-bottom: 2.5rem; }
+
+/* BOOKING CARD */
+.booking-card {
+    position: sticky;
+    top: 6rem;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 24px;
+    border: 1px solid var(--gray-200);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
+}
+
+.price-container { margin-bottom: 1.5rem; }
+.price-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.price-tag {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: inline-block;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* POP ANIMATION */
+@keyframes pricePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); color: var(--teal); }
+    100% { transform: scale(1); }
+}
+.pop-effect { animation: pricePop 0.3s ease-out; }
+
+.form-group { margin-bottom: 1.5rem; }
+.form-group label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.6rem; }
+
+/* COUNTER */
+.counter-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--gray-100);
+    padding: 0.6rem;
+    border-radius: 16px;
+}
+
+.counter-btn {
+    border: none;
+    background: #fff;
+    cursor: pointer;
+    color: var(--teal);
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: all 0.2s;
+}
+.counter-btn:hover:not(:disabled) { background: var(--teal); color: #fff; transform: translateY(-1px); }
+.counter-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ticket-num { font-weight: 800; font-size: 1.2rem; display: inline-block; }
+
+@keyframes numJump {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+}
+.jump-effect { animation: numJump 0.2s ease-out; }
+
+.btn-book {
+    width: 100%;
+    padding: 1.2rem;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 8px 20px rgba(0, 137, 123, 0.25);
+}
+.btn-book:hover { background: var(--teal-dark); transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0, 137, 123, 0.35); }
+
+.urgency-badge {
+    margin-top: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--red);
+    background: #FFF5F5;
+    padding: 0.75rem;
+    border-radius: 12px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .page-container { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .booking-card { position: static; width: 100%; }
+}

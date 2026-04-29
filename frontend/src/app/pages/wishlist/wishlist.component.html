@@ -1,0 +1,55 @@
+<nav class="navbar">
+  <div class="logo">Campus<span>Connect</span></div>
+  <div class="nav-search">
+    <input type="text" placeholder="Search your wishlist..." />
+  </div>
+  <div class="nav-right">
+    <button class="genre-btn">❤ Wishlist</button>
+    <div class="profile" routerLink="/profile">
+      <img src="https://i.pravatar.cc/40" alt="profile" />
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h2>My Wishlist</h2>
+  <p>Events you've saved for later</p>
+</div>
+
+<section class="wishlist-section" *ngIf="events.length > 0; else empty">
+  <div class="wishlist-grid">
+
+    <div class="wish-card" *ngFor="let event of events; let i = index">
+      <div class="wish-card-img-wrapper">
+        <img [src]="event.image" class="wish-card-img" />
+        <span class="wish-badge">❤ Saved</span>
+      </div>
+      <div class="wish-card-body">
+        <h3>{{event.name}}</h3>
+        <div class="wish-card-meta">
+          📅 {{event.date}}
+        </div>
+        <div class="wish-card-meta">
+          📍 {{event.location}}
+        </div>
+        <div class="wish-card-actions">
+          <button class="btn-book">Book Now</button>
+          <button class="btn-remove" (click)="removeEvent(i)">Remove</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<ng-template #empty>
+  <div class="empty-state">
+    <h2>Your wishlist is empty</h2>
+    <p>Browse events and save the ones you love!</p>
+    <a href="/" class="btn-explore">Explore Events</a>
+  </div>
+</ng-template>
+
+<footer>
+  <p>© 2026 CampusConnect • All Rights Reserved</p>
+</footer>
